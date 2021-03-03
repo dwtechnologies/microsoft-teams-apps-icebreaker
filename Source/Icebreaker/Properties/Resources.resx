@@ -126,15 +126,15 @@
     <comment>A generic message that is sent when there is an error occurring</comment>
   </data>
   <data name="InstallMessageKnownInstallerPart1" xml:space="preserve">
-    <value>If you're reading this, it's most likely because {0} added me to the **{1} Team.**</value>
+    <value>If you're reading this, it's because you have joined the {1} teams group!</value>
     <comment>Install message and also the welcome message when the app installer is known - {0} is the placeholder for the name of the user that has installed the app to the team, and {1} is the placeholder for the name of the team that the app has been installed to</comment>
   </data>
   <data name="InstallMessageKnownInstallerPart2" xml:space="preserve">
-    <value>I get to help you meet more people around your organization by randomly pairing you with someone new every week. You get to make more friends and learn about the people you work with. It's a win-win-*win* situation.</value>
+    <value>It is time for you to get to know more people around the organization and this will happen with help from our bot BYOC, who will randomly be pairing you with someone new every other week. You get to make more friends and learn about the people you work with. It's a win-win-*win* situation.</value>
     <comment>Part 2 of the install message when the name of the installer is known</comment>
   </data>
   <data name="InstallMessageKnownInstallerPart3" xml:space="preserve">
-    <value>**To meet new people, just hang tight. I'll send you an invite soon.**</value>
+    <value>**To meet new people, just hang tight. BYOC will send you an invite soon.**</value>
     <comment>Part 3 of the install message with the name of the installer known</comment>
   </data>
   <data name="InstallMessageUnknownInstallerPart1" xml:space="preserve">
@@ -150,11 +150,11 @@
     <comment>Part 3 of the install message when the name of the installer is not known</comment>
   </data>
   <data name="MatchUpCardContentPart1" xml:space="preserve">
-    <value>Hi there again, I'm {0} in {1}. A bot that pairs you with a new coworker to meet each week. This week your match is {2}.</value>
+    <value>Hi there again, I'm {0} in {1}. A bot that pairs you with a new coworker to meet every other week. This week your match is {2}.</value>
     <comment>First part of the match up card main content</comment>
   </data>
   <data name="MatchUpCardContentPart2" xml:space="preserve">
-    <value>If you've got the inclination, set something up. See, meeting people *is* easy!</value>
+    <value>Time for you to set something up and don't forget to bring your own coffee. See, meeting people is *easy*!</value>
     <comment>Second part of the match up card main content</comment>
   </data>
   <data name="MatchUpCardMatchedText" xml:space="preserve">

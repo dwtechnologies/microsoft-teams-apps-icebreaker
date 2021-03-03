@@ -1,0 +1,78 @@
+name: Redeploy
+
+on: workflow_dispatch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@main
+
+      - name: Azure Login
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure Cleanup
+        uses: Azure/arm-deploy@v1
+        with:
+          resourceGroupName: rg-byoc
+          template: Deployment/azurecleanup.json
+          deploymentMode: Complete
+
+      - name: Azure Redeploy
+        uses: Azure/arm-deploy@v1
+        with:
+          resourceGroupName: rg-byoc
+          template: Deployment/azuredeploy.json
+          parameters:
+            botAppID=${{ secrets.BOT_APP_ID }}
+            botAppPassword=${{ secrets.BOT_APP_PASSWORD }}
+
+      - name: Teams Redeploy
+        shell: pwsh
+        env: 
+          BOT_APP_ID: ${{ secrets.BOT_APP_ID }}
+          BOT_APP_PASSWORD: ${{ secrets.BOT_APP_PASSWORD }}
+          TEAMS_INFO: ${{ secrets.TEAMS_INFO }}
+        run: |
+          $getToken = @{
+              Method = 'Post'
+              Uri    = 'https://login.microsoftonline.com/danielwellington.com/oauth2/v2.0/token'
+              Body   = @{
+                  grant_type    = 'client_credentials'
+                  scope         = 'https://graph.microsoft.com/.default'
+                  client_id     = $env:BOT_APP_ID
+                  client_secret = $env:BOT_APP_PASSWORD
+              }
+          }
+          $token = Invoke-RestMethod @getToken
+
+          $env:TEAMS_INFO | ConvertFrom-Json | ForEach-Object -Parallel {
+              $getApp = @{
+                  Method = 'Get'
+                  Uri    = 'https://graph.microsoft.com/v1.0/teams/{0}/installedApps' -f $_.teamsId
+                  Header = @{Authorization = 'Bearer {0}' -f ($using:token).access_token}
+              }
+              $apps = Invoke-RestMethod @getApp
+
+              if ($apps.value.id.Contains($_.installedAppsId)) {
+                  $removeApp = @{
+                      Method = 'Delete'
+                      Uri    = 'https://graph.microsoft.com/v1.0/teams/{0}/installedApps/{1}' -f $_.teamsId, $_.installedAppsId
+                      Header = @{Authorization = 'Bearer {0}' -f ($using:token).access_token}
+                  }
+                  $null = Invoke-RestMethod @removeApp
+              }
+              
+              $addApp = @{
+                  Method      = 'Post'
+                  Uri         = "https://graph.microsoft.com/v1.0/teams/{0}/installedApps" -f $_.teamsId
+                  Header      = @{Authorization = 'Bearer {0}' -f ($using:token).access_token}
+                  Body        = @{'teamsApp@odata.bind' = 'https://graph.microsoft.com/v1.0/appCatalogs/teamsApps/{0}' -f $_.teamsAppsId} | ConvertTo-Json
+                  ContentType = 'application/json'
+              }
+              $null = Invoke-RestMethod @addApp
+          }
